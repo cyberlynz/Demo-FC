@@ -6,10 +6,14 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// For Vercel CI, use Nitro's Vercel output preset rather than the default Cloudflare target.
+// In Dyad's local preview, keep Nitro enabled for local development.
+const isVercel = Boolean(process.env.VERCEL);
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: isVercel ? { preset: "vercel" } : true,
 });
