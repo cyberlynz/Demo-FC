@@ -32,6 +32,7 @@ function RegisterPage() {
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setMessage("");
     const fd = new FormData(e.currentTarget);
     const fullName = String(fd.get("full_name") ?? "").trim();
@@ -56,7 +57,7 @@ function RegisterPage() {
       const row = data?.[0];
       if (!row?.code) throw new Error("Registration was not created. Please try again.");
       setSuccess({ code: row.code, phone });
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
     } catch (err) {
       const raw = err instanceof Error ? err.message : String(err);
       if (raw.includes("REGISTRATION_CLOSED")) setMessage("Registration is currently closed.");
