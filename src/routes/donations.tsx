@@ -31,7 +31,7 @@ function DonationsPage() {
   const [success,setSuccess] = useState(false);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault(); setMessage(""); setSuccess(false);
+    e.preventDefault(); const form = e.currentTarget; setMessage(""); setSuccess(false);
     const fd = new FormData(e.currentTarget);
     const amount = Number(fd.get("amount"));
     const donor = String(fd.get("donor_name") ?? "").trim();
@@ -49,7 +49,7 @@ function DonationsPage() {
         _show_name: showName,
       });
       if (error) throw error;
-      setSuccess(true); e.currentTarget.reset(); query.refetch();
+      setSuccess(true); form.reset(); query.refetch();
     } catch(err) {
       setMessage(err instanceof Error ? err.message : String(err));
     } finally { setBusy(false); }
