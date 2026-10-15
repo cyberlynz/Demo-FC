@@ -40,7 +40,7 @@ function Home() {
   return (
     <div className="min-h-screen">
       <SiteHeader name={t.name} />
-      <section className="bg-pitch-gradient pitch-stripes text-pitch-foreground">
+      <section className="pitch-stripes text-pitch-foreground" style={{ backgroundImage: "linear-gradient(135deg, #14532d, #15803d)" }}>
         <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
           <div className="flex flex-wrap gap-2">
             {t.is_demo && <Badge variant="secondary">Demo data</Badge>}
@@ -54,6 +54,11 @@ function Home() {
             <Stat label="Fee / player" value={naira(t.fee)} />
             <Stat label="Players confirmed" value={`${approved}/${capacity}`} />
             <Stat label="Spots left" value={String(Math.max(capacity - approved, 0))} />
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link to="/register" className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2.5 text-sm font-bold text-green-900 shadow-sm transition-colors hover:bg-green-50">Register to play →</Link>
+            <Link to="/fixtures" className="inline-flex items-center justify-center rounded-md border border-white/50 bg-green-950/20 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-950/40">View fixtures</Link>
+            <Link to="/table" className="inline-flex items-center justify-center rounded-md border border-white/50 bg-green-950/20 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-950/40">League table</Link>
           </div>
         </div>
       </section>
@@ -74,9 +79,13 @@ function Home() {
           <h2 className="font-display text-2xl font-bold uppercase">Support the league</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t.donation_message}</p>
           <p className="mt-4 text-sm">Donations go to the same account above and are confirmed manually.</p>
-          <Link to="/admin" className="mt-6 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline">
-            Organiser? Go to admin →
-          </Link>
+          <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold text-primary">
+            <Link to="/donations" className="underline-offset-4 hover:underline">Make a donation →</Link>
+            <Link to="/teams" className="underline-offset-4 hover:underline">View teams →</Link>
+            <Link to="/stats" className="underline-offset-4 hover:underline">Player statistics →</Link>
+            <Link to="/status" className="underline-offset-4 hover:underline">Check registration →</Link>
+            <Link to="/admin" className="underline-offset-4 hover:underline">Organiser admin →</Link>
+          </div>
         </div>
       </section>
     </div>
