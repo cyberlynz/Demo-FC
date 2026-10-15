@@ -6,6 +6,19 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { naira } from "@/lib/format";
 
+
+function describeApiError(error: unknown): { code: string; message: string } {
+  if (error && typeof error === "object") {
+    const value = error as { code?: unknown; message?: unknown; details?: unknown; hint?: unknown };
+    const code = typeof value.code === "string" ? value.code : "";
+    const parts = [value.message, value.details, value.hint]
+      .filter((part): part is string => typeof part === "string" && part.trim().length > 0);
+    return { code, message: parts.join(" — ") || "The registration request failed." };
+  }
+  if (error instanceof Error) return { code: "", message: error.message };
+  return { code: "", message: typeof error === "string" ? error : "The registration request failed." };
+}
+
 function normalizePhone(value: string) {
   const digits = value.replace(/\D/g, "");
   if (digits.startsWith("0")) return "234" + digits.slice(1);
@@ -59,10 +72,24 @@ function RegisterPage() {
       setSuccess({ code: row.code, phone });
       form.reset();
     } catch (err) {
-      const raw = err instanceof Error ? err.message : String(err);
-      if (raw.includes("REGISTRATION_CLOSED")) setMessage("Registration is currently closed.");
-      else if (raw.includes("DUPLICATE")) setMessage("A registration with this phone number or payment reference already exists.");
-      else setMessage(raw);
+      const parsed = describeApiError(err);
+      const raw = parsed.message;
+      const lower = raw.toLowerCase();
+      if (raw.includes("REGISTRATION_CLOSED")) {
+        setMessage("Registration is currently closed.");
+      } else if (raw.includes("DUPLICATE") || lower.includes("duplicate key")) {
+        setMessage("A registration with this phone number or payment reference already exists.");
+      } else if (parsed.code === "42501" || lower.includes("permission denied")) {
+        setMessage("The registration function is not permitted for public submissions yet. In Supabase SQL Editor, run supabase/0002_public_rpc_grants.sql from the Demo-FC repository, then retry.");
+      } else if (parsed.code === "PGRST202" || lower.includes("could not find the function") || lower.includes("schema cache")) {
+        setMessage("Supabase could not find the registration function. Confirm both database migrations completed successfully, then refresh the Supabase schema cache.");
+      } else if (raw.includes("NO_TOURNAMENT")) {
+        setMessage("No active tournament is configured. Ask the organiser to check Tournament Settings.");
+      } else if (lower.includes("registrations_phone_check") || (lower.includes("phone") && lower.includes("check constraint"))) {
+        setMessage("Enter a valid Nigerian mobile number, such as 08012345678 or +2348012345678.");
+      } else {
+        setMessage(raw || "Registration failed. Please try again.");
+      }
     } finally {
       setBusy(false);
     }
